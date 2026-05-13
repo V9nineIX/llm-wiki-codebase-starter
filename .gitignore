@@ -1,0 +1,14 @@
+# Obsidian workspace state (per-user, don't version)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+
+# Plugins/themes from Community Browser
+# (case by case — some are worth versioning to reproduce across machines)
+
+# Logs and tmp
+*.log
+.DS_Store
+
+# Agent ephemeral drafts
+/tmp/
