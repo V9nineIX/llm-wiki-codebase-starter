@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(defuddle parse *)"
+      "Bash(defuddle parse *)",
+      "Skill(adr-writing)",
+      "Skill(obsidian-markdown)"
     ]
   }
 }

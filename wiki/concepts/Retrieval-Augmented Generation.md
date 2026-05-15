@@ -23,6 +23,15 @@ The conventional technique of augmenting an LLM's generation with retrieved docu
 
 RAG remains effective for large, static corpora where freshness is less important than coverage, and where queries are narrow enough that chunk retrieval is sufficient. It does not suit long-term research or evolving personal knowledge bases where synthesis matters.
 
+## Vector database implementations
+
+RAG requires a vector store for embedding storage and retrieval:
+
+- [[pgvector]] — PostgreSQL extension for integrated vector search (chosen for Kubernetes classification system)
+- [[Qdrant]] — Standalone vector database optimized for high-scale vector workloads
+
+See [[dev/adr/ADR-0001-pgvector-vs-qdrant-for-rag]] for the decision rationale.
+
 ## Related
 
 - [[LLM Wiki Pattern]] — the persistent-knowledge alternative.
