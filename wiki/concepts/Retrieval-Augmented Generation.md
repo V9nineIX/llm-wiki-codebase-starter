@@ -23,6 +23,16 @@ The conventional technique of augmenting an LLM's generation with retrieved docu
 
 RAG remains effective for large, static corpora where freshness is less important than coverage, and where queries are narrow enough that chunk retrieval is sufficient. It does not suit long-term research or evolving personal knowledge bases where synthesis matters.
 
+| Situation | Better approach |
+|-----------|----------------|
+| Hundreds of documents, evolving, agents need shared context | [[LLM Wiki Pattern]] |
+| Millions of documents, heterogeneous access patterns | RAG |
+| Large org, multiple repos, years of history | Both — wiki for project context, RAG for broad retrieval |
+
+## Agentic RAG
+
+A variant that embeds autonomous agents into the retrieval pipeline to improve cross-document reasoning (see [arxiv 2501.09136](https://arxiv.org/abs/2501.09136)). Partially addresses RAG's lack of accumulation, but at significantly higher infrastructure complexity than a compiled markdown wiki.
+
 ## Vector database implementations
 
 RAG requires a vector store for embedding storage and retrieval:

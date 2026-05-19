@@ -10,7 +10,7 @@ Deep learning researcher and educator, known for influential work at [[OpenAI]] 
 
 ## Key Contributions
 
-- Proposed and popularized the [[LLM Wiki Pattern]] (2025) as a compounding-knowledge-base architecture that replaces ephemeral RAG with a persistent, LLM-maintained wiki.
+- Proposed and popularized the [[LLM Wiki Pattern]] (April 3, 2026 — [original gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)) as a compounding-knowledge-base architecture that replaces ephemeral RAG with a persistent, LLM-maintained wiki. His reference implementation: ~100 articles, ~400k words, no vector database needed.
 - Created widely-followed educational content and courses on deep learning fundamentals.
 
 ## Related
