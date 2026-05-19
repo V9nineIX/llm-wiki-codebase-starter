@@ -53,3 +53,30 @@ Updated index.md with new concepts and entity reference to [[Andrej Karpathy]].
 - Memex Trail (concept expansion)
 
 **Action:** Adopted log.md for future tracking.
+
+## [2026-05-15] ingest | react-todo codebase docs
+
+**Source:** [[dev/projects/react-todo]] — Create React App scaffold, currently unmodified.
+
+Created new `wiki/code/` section with project hub + 9 deep-dive module pages:
+
+- [[wiki/code/index|Code Index]] — section hub.
+- [[wiki/code/react-todo|react-todo]] — project hub (architecture diagram, module map, dependency flow).
+- [[wiki/code/react-todo/src-index-js|src/index.js]] — React 18 root mounting, StrictMode.
+- [[wiki/code/react-todo/src-app-js|src/App.js]] — root component (CRA welcome).
+- [[wiki/code/react-todo/src-app-css|src/App.css]] — component styles, reduced-motion handling.
+- [[wiki/code/react-todo/src-index-css|src/index.css]] — global body/code typography.
+- [[wiki/code/react-todo/src-app-test-js|src/App.test.js]] — RTL smoke test.
+- [[wiki/code/react-todo/src-setup-tests-js|src/setupTests.js]] — jest-dom matcher setup.
+- [[wiki/code/react-todo/src-report-web-vitals-js|src/reportWebVitals.js]] — Core Web Vitals reporter (inert).
+- [[wiki/code/react-todo/public-index-html|public/index.html]] — HTML template, `%PUBLIC_URL%`, `#root`.
+- [[wiki/code/react-todo/package-json|package.json]] — deps, scripts, ESLint, browserslist.
+
+Updated [[wiki/index|wiki/index]] with new "Code" section.
+
+**State of source:** the repo is the unmodified CRA scaffold (no todo logic yet). Module pages describe the scaffold faithfully and flag this in each "State as of 2026-05-15" callout where relevant. Pages must be revised when real todo features land — especially [[wiki/code/react-todo/src-app-js|src/App.js]], [[wiki/code/react-todo/src-app-test-js|src/App.test.js]], and the project hub's "How a request becomes a rendered pixel" section.
+
+**Open questions surfaced:**
+- Todo state location: component state vs. context vs. [[localStorage]]?
+- Test strategy: single smoke test vs. per-component coverage?
+- Upgrade `web-vitals` (v2 → v3+) to swap FID → INP?

@@ -78,11 +78,29 @@ For debriefs, add: `incident-date`, `severity`.
 ## Available skills
 
 Skills loaded in `.claude/skills/`:
+
+### Obsidian
 - `obsidian-markdown` — Obsidian native syntax (ALWAYS use)
 - `obsidian-bases` — databases via .base
 - `json-canvas` — visual whiteboards
 - `obsidian-cli` — automation via obsdmd command
 - `defuddle` — clean web content extraction
 
+### Dev workflow
+- `prd-writing` — `/prd-writing` create or edit PRDs in dev/prd/
+- `adr-writing` — `/adr-writing` create or edit ADRs in dev/adr/
+- `debrief-writing` — `/debrief-writing` create debriefs in dev/debriefs/
+- `prd-to-epics` — `/prd-to-epics` break PRD into Epics → dev/epics/
+- `epic-to-stories` — `/epic-to-stories` break Epic into User Stories → dev/stories/
+- `story-to-tasks` — `/story-to-tasks` break User Story into Tasks → dev/tasks/
+
+### Workflow order
+```
+/prd-writing → /grill-with-docs → /prd-to-epics
+                                 → /grill-with-docs → /epic-to-stories
+                                                     → /grill-with-docs → /story-to-tasks → build
+```
+
 Before creating `.canvas` or `.base` files, consult the corresponding skill.
 Before fetching a URL, consult `defuddle`.
+Before generating epics/stories/tasks, run `/grill-with-docs` on the source artifact.
