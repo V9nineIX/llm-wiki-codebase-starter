@@ -4,8 +4,9 @@ type: concept
 tags: [llm, knowledge-management, wiki, compounding, rag-alternative]
 sources:
   - "[[raw/clippings/2026-05-14-llm-wiki]]"
+  - "[[raw/clippings/2026-05-19-personal-harness-llm-wiki-obsidian]]"
 created: 2026-05-14
-updated: 2026-05-14
+updated: 2026-05-19
 ---
 
 An architecture for building persistent, compounding personal knowledge bases where an LLM agent incrementally maintains a structured wiki between the user and immutable raw sources.
@@ -58,6 +59,28 @@ Practical mapping for engineering workflows:
 **Scale ceiling**: index-file + summary navigation works up to roughly 100 sources / 400k words without vector infrastructure. Beyond that, a [[Retrieval-Augmented Generation|RAG]] layer for broad retrieval, with the wiki handling project-specific context, is more realistic.
 
 **Multi-agent write coordination**: designate one compilation agent with wiki write access; task agents read-only. Prevents conflicting edits while sharing a consistent knowledge view. ([[Verdent]] runs this pattern in isolated git worktrees.)
+
+## Physical implementation: Zone Separation
+
+The three conceptual layers map to vault zones enforced by `CLAUDE.md`. See [[Zone Separation]] for the full model: `raw/` (immutable, human-curated), `wiki/` (LLM-owned), `dev/` (collaborative — ADRs, debriefs, snippets).
+
+`CLAUDE.md` itself is a "Zone 0" schema document read at every session start. It transforms a generic LLM into a disciplined wiki maintainer by encoding zone rules, wikilink conventions, frontmatter schema, ingestion workflow, and strict limits.
+
+## Slash commands and allowed-tools
+
+In an Obsidian vault, imperative operations (ingest a URL, run a query) are encoded as slash commands with an `allowed-tools` field that allowlists only the specific Bash subcommands the command needs. This is the primary [[Prompt Injection Defense]] mechanism: even if malicious content in an ingested source triggers an unexpected action, the tool the model "decides" to use may not be in the allowlist. The plan-before-execute pattern (agent presents what it will do; human approves) is the human-in-the-loop gate.
+
+## Three paths to LLM → vault connection
+
+| Path | Mechanism | Recommended when |
+|------|-----------|-----------------|
+| **Direct filesystem + skills** | Claude Code opens vault directory; [[Steph Ango]]'s `kepano/obsidian-skills` teach native Obsidian syntax | Starting out; offline; portable |
+| **MCP via Local REST API** | Obsidian plugin exposes `127.0.0.1:27124`; MCP server mediates | Need Dataview queries or palette commands from agent |
+| **Pre-packaged plugin** | `claude-obsidian` ships with skills + commands ready | Zero-config entry; less customizable |
+
+## Weekly daily-notes synthesis
+
+Daily notes live in `raw/daily/` (Zone 1, immutable). Periodically, the agent reads a week's worth and produces a structured report: recurring themes, pending decisions, concepts worth promoting to wiki, possible wikilinks to existing ADRs. The agent presents the report first; no files are created until approved.
 
 ## Tooling commonly used
 
