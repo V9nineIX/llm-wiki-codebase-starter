@@ -94,12 +94,23 @@ Skills loaded in `.claude/skills/`:
 - `epic-to-stories` — `/epic-to-stories` break Epic into User Stories → dev/stories/
 - `story-to-tasks` — `/story-to-tasks` break User Story into Tasks → dev/tasks/
 
+### Agent team (multi-agent development)
+- `orchestrator-workflow` — Team Lead: SPAWN→PLAN→DISPATCH→COLLECT→TEST→QA_REVIEW→COMMIT→REPORT
+- `subagent-frontend` — Component/UI developer (components, App.jsx, component tests)
+- `subagent-backend` — State/hook developer (useTodos.js, hook tests)
+- `subagent-qa` — QA engineer (acceptance verification, edge case regression)
+
 ### Workflow order
 ```
 /prd-writing → /grill-with-docs → /prd-to-epics
                                  → /grill-with-docs → /epic-to-stories
                                                      → /grill-with-docs → /story-to-tasks → build
 ```
+
+The `build` phase uses the agent team orchestrator: load `orchestrator-workflow`
+skill, then dispatch tasks to subagents via `delegate_task`. Quality gates:
+`./run_tests.sh --full` (all tests pass) + QA review (all acceptance criteria
+verified) before any commit. See `dev/plans/agent-team-setup.md` for details.
 
 Before creating `.canvas` or `.base` files, consult the corresponding skill.
 Before fetching a URL, consult `defuddle`.

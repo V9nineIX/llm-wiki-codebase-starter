@@ -42,10 +42,12 @@ You are an agent operating inside this vault. Your behavior is governed by this 
 │   ├── stories/              #   User Stories from epics (US-NNNN-slug.md)
 │   └── tasks/                #   Implementation tasks from stories (T-NNNN-slug.md)
 │
+├── run_tests.sh              # Agent team quality gate (vitest --fast|--full)
+│
 ├── .claude/                  # Claude Code configuration
 │   ├── settings.local.json   #   Allowed-tools permissions
 │   ├── commands/             #   Slash commands (wiki-ingest, wiki-query)
-│   └── skills/               #   Agent skills (prd-writing, adr-writing, etc.)
+│   └── skills/               #   Agent skills (prd-writing, subagent-frontend, etc.)
 │
 └── .obsidian/                # Obsidian app config (core plugins, appearance)
 ```
@@ -97,13 +99,18 @@ Additional fields by type:
 7. Update `wiki/index.md` if genuinely new.
 8. Report: concepts created/updated, links added.
 
-## Dev workflow (PRD → tasks pipeline)
+## Dev workflow (PRD → tasks → agent team)
 
 ```
 /prd-writing → /grill-with-docs → /prd-to-epics
                                  → /grill-with-docs → /epic-to-stories
                                                      → /grill-with-docs → /story-to-tasks → build
 ```
+
+For the `build` phase, the orchestrator (`orchestrator-workflow` skill) dispatches
+tasks to specialized subagents via `delegate_task`, enforces quality gates
+(`./run_tests.sh --full` + QA review), and commits only when both gates pass.
+See `dev/plans/agent-team-setup.md` for the full architecture.
 
 Before creating `.canvas` or `.base` files, consult the corresponding skill.
 Before generating epics/stories/tasks, run `/grill-with-docs` on the source artifact.
@@ -124,6 +131,12 @@ Before generating epics/stories/tasks, run `/grill-with-docs` on the source arti
 - `prd-to-epics` — break PRD into Epics → `dev/epics/`
 - `epic-to-stories` — break Epic into User Stories → `dev/stories/`
 - `story-to-tasks` — break User Story into Tasks → `dev/tasks/`
+
+### Agent team (multi-agent development)
+- `orchestrator-workflow` — Team Lead state machine: SPAWN→PLAN→DISPATCH→COLLECT→TEST→QA_REVIEW→COMMIT→REPORT
+- `subagent-frontend` — Component/UI developer (territory: `src/components/`, `src/App.jsx`, component tests)
+- `subagent-backend` — State/hook developer (territory: `src/hooks/useTodos.js`, hook tests)
+- `subagent-qa` — Acceptance verification + edge case regression tester
 
 ## Strict limits
 
