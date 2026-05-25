@@ -12,3 +12,6 @@
 
 # Agent ephemeral drafts
 /tmp/
+*node_modules/
+*/node_modules/
+*/dev/node_modules/
