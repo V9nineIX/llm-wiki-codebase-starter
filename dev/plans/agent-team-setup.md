@@ -168,9 +168,9 @@ When a subagent gets stuck, write findings here for another subagent to continue
 The Team Lead follows a state machine to ensure consistent workflow:
 
 ```
-SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → REPORT
-  │                │          │         │        │           │        │
-  └── BLOCKED ─────┴──────────┴─────────┴────────┴───────────┴────────┘
+SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → DEV_DOC → DOC_CHECK → REPORT
+  │                │          │         │        │           │          │          │         │
+  └── BLOCKED ─────┴──────────┴─────────┴────────┴───────────┴──────────┴──────────┴─────────┘
 ```
 
 | State | Action |
@@ -182,13 +182,16 @@ SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → RE
 | **TEST** | Run full test suite (`pnpm test -- --watchAll=false`) |
 | **QA_REVIEW** | Dispatch QA subagent for acceptance verification |
 | **COMMIT** | Git add + commit with story reference |
+| **DEV_DOC** | Write developer documentation explaining how the code works. Create/update pages in `wiki/` covering: component architecture, data flow, hook contracts, key design patterns. Generate diagrams using `excalidraw` (component/flow) or `architecture-diagram` (system-level), save to `wiki/diagrams/`. Skip only if no new code was merged. |
+| **DOC_CHECK** | Review merged changes: new concepts, changed terminology, architectural decisions? Update `wiki/` or `dev/adr/` if domain-model changed. Skip if pure implementation. |
 | **REPORT** | Update STATUS.md, PROGRESS.md, report to user |
 | **BLOCKED** | Something failed — report exactly what's needed to user |
 
 **Guard rules** (can't skip states):
 - Can't DISPATCH without PLAN complete
 - Can't COMMIT without TEST passing + QA_REVIEW approved
-- Can't REPORT without COMMIT complete
+- Can't DOC_CHECK without DEV_DOC complete
+- Can't REPORT without DOC_CHECK complete
 
 ---
 
