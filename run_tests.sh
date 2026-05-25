@@ -11,11 +11,11 @@ MODE="${1:---fast}"
 case "$MODE" in
   --fast)
     echo "=== Running fast tests ==="
-    npx vitest run --reporter=verbose
+    pnpm exec vitest run --reporter=verbose
     ;;
   --full)
     echo "=== Running full test suite with coverage ==="
-    npx vitest run --coverage --reporter=verbose
+    pnpm exec vitest run --coverage --reporter=verbose
     ;;
   *)
     echo "Usage: ./run_tests.sh [--fast|--full]"

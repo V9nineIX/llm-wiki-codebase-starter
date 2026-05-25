@@ -179,7 +179,7 @@ SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → RE
 | **PLAN** | Read story + tasks, identify file dependencies, plan batches |
 | **DISPATCH** | Send `delegate_task(tasks=[...])` with role-specific context |
 | **COLLECT** | Wait for all subagents, check results |
-| **TEST** | Run full test suite (`npm test -- --watchAll=false`) |
+| **TEST** | Run full test suite (`pnpm test -- --watchAll=false`) |
 | **QA_REVIEW** | Dispatch QA subagent for acceptance verification |
 | **COMMIT** | Git add + commit with story reference |
 | **REPORT** | Update STATUS.md, PROGRESS.md, report to user |
@@ -220,11 +220,11 @@ MODE="${1:---fast}"
 case "$MODE" in
   --fast)
     echo "Running fast tests..."
-    npx vitest run --reporter=verbose
+    pnpm exec vitest run --reporter=verbose
     ;;
   --full)
     echo "Running full test suite with coverage..."
-    npx vitest run --coverage --reporter=verbose
+    pnpm exec vitest run --coverage --reporter=verbose
     ;;
   *)
     echo "Usage: ./run_tests.sh [--fast|--full]"
@@ -377,7 +377,7 @@ You are a React frontend specialist working on a specific task.
 2. **WRITE** a failing RTL test first (RED)
 3. **IMPLEMENT** the component (GREEN)
 4. **REFACTOR** if needed
-5. **RUN** `npx vitest run` to verify ALL tests pass
+5. **RUN** `pnpm exec vitest run` to verify ALL tests pass
 6. **COMMIT** with descriptive message: `feat(T-XXXX): <description>`
 
 ## Tech stack
@@ -423,7 +423,7 @@ You are a data/state specialist working on a specific task.
 2. **WRITE** a failing unit test first (RED)
 3. **IMPLEMENT** the hook/utility (GREEN)
 4. **REFACTOR** if needed
-5. **RUN** `npx vitest run` to verify ALL tests pass
+5. **RUN** `pnpm exec vitest run` to verify ALL tests pass
 6. **COMMIT** with descriptive message: `feat(T-XXXX): <description>`
 
 ## Tech stack
