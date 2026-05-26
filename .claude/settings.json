@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ln -sf ../../.claude/skills/__TRACKED_VAR__/SKILL.md __TRACKED_VAR__.mdc)",
+      "Read(//Users/wi9/.codex/prompts/**)",
+      "Bash(ln -sf /Users/wi9/work/wiki-code-v3/.claude/skills/__TRACKED_VAR__/SKILL.md __TRACKED_VAR__.md)"
+    ]
+  }
+}
