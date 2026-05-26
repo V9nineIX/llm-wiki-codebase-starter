@@ -168,9 +168,9 @@ When a subagent gets stuck, write findings here for another subagent to continue
 The Team Lead follows a state machine to ensure consistent workflow:
 
 ```
-SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → REPORT
-  │                │          │         │        │           │        │
-  └── BLOCKED ─────┴──────────┴─────────┴────────┴───────────┴────────┘
+SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → DEV_DOC → DOC_CHECK → REPORT
+  │                │          │         │        │           │          │          │         │
+  └── BLOCKED ─────┴──────────┴─────────┴────────┴───────────┴──────────┴──────────┴─────────┘
 ```
 
 | State | Action |
@@ -179,16 +179,19 @@ SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → RE
 | **PLAN** | Read story + tasks, identify file dependencies, plan batches |
 | **DISPATCH** | Send `delegate_task(tasks=[...])` with role-specific context |
 | **COLLECT** | Wait for all subagents, check results |
-| **TEST** | Run full test suite (`npm test -- --watchAll=false`) |
+| **TEST** | Run full test suite (`pnpm test -- --watchAll=false`) |
 | **QA_REVIEW** | Dispatch QA subagent for acceptance verification |
 | **COMMIT** | Git add + commit with story reference |
+| **DEV_DOC** | Write developer documentation explaining how the code works. Create/update pages in `wiki/` covering: component architecture, data flow, hook contracts, key design patterns. Generate diagrams using `excalidraw` (component/flow) or `architecture-diagram` (system-level), save to `wiki/diagrams/`. Skip only if no new code was merged. |
+| **DOC_CHECK** | Review merged changes: new concepts, changed terminology, architectural decisions? Update `wiki/` or `dev/adr/` if domain-model changed. Skip if pure implementation. |
 | **REPORT** | Update STATUS.md, PROGRESS.md, report to user |
 | **BLOCKED** | Something failed — report exactly what's needed to user |
 
 **Guard rules** (can't skip states):
 - Can't DISPATCH without PLAN complete
 - Can't COMMIT without TEST passing + QA_REVIEW approved
-- Can't REPORT without COMMIT complete
+- Can't DOC_CHECK without DEV_DOC complete
+- Can't REPORT without DOC_CHECK complete
 
 ---
 
@@ -220,11 +223,11 @@ MODE="${1:---fast}"
 case "$MODE" in
   --fast)
     echo "Running fast tests..."
-    npx vitest run --reporter=verbose
+    pnpm exec vitest run --reporter=verbose
     ;;
   --full)
     echo "Running full test suite with coverage..."
-    npx vitest run --coverage --reporter=verbose
+    pnpm exec vitest run --coverage --reporter=verbose
     ;;
   *)
     echo "Usage: ./run_tests.sh [--fast|--full]"
@@ -377,7 +380,7 @@ You are a React frontend specialist working on a specific task.
 2. **WRITE** a failing RTL test first (RED)
 3. **IMPLEMENT** the component (GREEN)
 4. **REFACTOR** if needed
-5. **RUN** `npx vitest run` to verify ALL tests pass
+5. **RUN** `pnpm exec vitest run` to verify ALL tests pass
 6. **COMMIT** with descriptive message: `feat(T-XXXX): <description>`
 
 ## Tech stack
@@ -423,7 +426,7 @@ You are a data/state specialist working on a specific task.
 2. **WRITE** a failing unit test first (RED)
 3. **IMPLEMENT** the hook/utility (GREEN)
 4. **REFACTOR** if needed
-5. **RUN** `npx vitest run` to verify ALL tests pass
+5. **RUN** `pnpm exec vitest run` to verify ALL tests pass
 6. **COMMIT** with descriptive message: `feat(T-XXXX): <description>`
 
 ## Tech stack
