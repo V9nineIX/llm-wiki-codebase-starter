@@ -10,6 +10,11 @@
 *.log
 .DS_Store
 
+# Test outputs
+playwright-report/
+test-results/
+coverage/
+
 # Agent ephemeral drafts
 /tmp/
 *node_modules/

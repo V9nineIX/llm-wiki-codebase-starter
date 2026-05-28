@@ -217,6 +217,83 @@ If `git status` shows uncommitted changes the subagent claimed to commit:
 - 3+ failed attempts → stop and ask user
 - Never silently work around a subagent failure
 
+## E2E Testing
+
+E2E tests run via Playwright against a live dev server. They verify user-facing flows end-to-end.
+
+### Flags
+
+| Flag | What runs | Exit on failure |
+|------|-----------|-----------------|
+| `--fast` | Unit tests only (Vitest) | exits ≠ 0 |
+| `--full` | Unit + integration (Vitest) | exits ≠ 0 |
+| `--e2e` | E2E tests (Playwright) | exits ≠ 0 |
+
+### QA_REVIEW — E2E Workflow
+
+When dispatching QA subagent for E2E verification:
+
+```
+1. QA subagent reads story acceptance criteria (dev/stories/US-NNNN.md)
+2. QA subagent reads source spec/tasks for context
+3. Subagent runs: ./run_tests.sh --e2e
+   - playwright.config.ts auto-starts dev server (pnpm dev)
+   - chromium runs tests locally
+   - mobile viewport (iPhone 13) runs as separate project
+4. QA subagent writes report to dev/qa/US-NNNN-report.md
+   - Must include: test results, mobile results, failures, screenshots
+5. QA subagent returns: OVERALL PASS or OVERALL FAIL
+   - FAIL = expected locators missing, features not implemented
+   - PASS = all critical paths green
+```
+
+### E2E Report Structure
+
+Path: `dev/qa/US-NNNN-report.md`
+
+```markdown
+---
+title: QA Report — US-NNNN <story title>
+type: qa-report
+tags: [e2e, US-NNNN, playwright]
+sources:
+  - "[[dev/stories/US-NNNN]]"
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+---
+
+## Test Results
+
+| Platform | Browser | Passed | Failed | Duration |
+|----------|---------|--------|--------|----------|
+| Desktop | chromium | N | N | Xms |
+| Mobile  | webkit   | N | N | Xms |
+
+## Failures
+
+<!-- list each failed test with reason -->
+
+## Screenshots
+
+<!-- attach failure screenshots if applicable -->
+
+## OVERALL: PASS | FAIL
+```
+
+### Playwright Test Conventions
+
+- File location: `e2e/US-NNNN-<feature>.spec.ts`
+- Base URL: `http://localhost:5173`
+- Use `getByPlaceholder`, `getByRole`, `locator('li')` — no CSS selectors
+- Mobile tests use `iPhone 13` viewport (見 iPhone 13 in config)
+- Screenshot on failure: `await page.screenshot({ path: 'dev/qa/failures/US-NNNN-<test>.png' })` (placed before the asserts)
+
+### When to use --e2e
+
+- After feature implementation is complete (TEST gate passed)
+- Before COMMIT — QA_REVIEW gate must greenlight
+- DO NOT run --e2e for config-only changes, bug fixes, or QA infrastructure setup
+
 ## Run Tests Script
 
 The project MUST have a `run_tests.sh` at root. Minimum interface:
