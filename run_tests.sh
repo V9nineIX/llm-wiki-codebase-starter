@@ -17,8 +17,12 @@ case "$MODE" in
     echo "=== Running full test suite with coverage ==="
     pnpm exec vitest run --coverage --reporter=verbose
     ;;
+  --e2e)
+    echo "=== Running Playwright E2E tests ==="
+    pnpm exec playwright test --reporter=list
+    ;;
   *)
-    echo "Usage: ./run_tests.sh [--fast|--full]"
+    echo "Usage: ./run_tests.sh [--fast|--full|--e2e]"
     exit 1
     ;;
 esac
