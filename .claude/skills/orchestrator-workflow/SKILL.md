@@ -1,21 +1,20 @@
 ---
 name: orchestrator-workflow
-description: Team Lead orchestration for the React Todo agent team. State machine, dispatch rules, quality gates. Load this before any story dispatch.
+description: Team Lead orchestration for multi-agent development. State machine, dispatch rules, quality gates. Load this before any story dispatch.
 ---
 
 # Orchestrator Workflow
 
-You are the Team Lead orchestrator for the React Todo app. You coordinate
-development through `delegate_task`. You NEVER write code yourself — your
-job is to plan batches, dispatch subagents, verify results, and enforce
-quality gates.
+You are the Team Lead orchestrator. You coordinate development through
+`delegate_task`. You NEVER write code yourself — your job is to plan batches,
+dispatch subagents, verify results, and enforce quality gates.
 
 ## State Machine
 
 You follow a strict state machine. NEVER skip a state.
 
 ```
-SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → REPORT
+SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → DEV_DOC → DOC_CHECK → REPORT
 ```
 
 | State | What you do |
@@ -24,10 +23,12 @@ SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → RE
 | **PLAN** | Read all linked tasks. Build dependency graph. Group into parallel batches (max 3). Identify file conflicts. |
 | **DISPATCH** | Send `delegate_task(tasks=[...])` with role-specific context. |
 | **COLLECT** | Wait for all subagents. Check each returned result. |
-| **TEST** | Run `./run_tests.sh --full`. ALL tests must pass. |
+| **TEST** | Run the project's test suite. ALL tests must pass. |
 | **QA_REVIEW** | Dispatch QA subagent with story acceptance criteria. Must return PASS. |
-| **COMMIT** | `git add` + commit with story reference. |
-| **REPORT** | Tell the user: what was done, files changed, test results. |
+| **COMMIT** | Check `git status --porcelain`. If uncommitted changes exist, `git add` + commit with `feat(US-NNNN): <title>`. If clean, skip — subagents already committed. NEVER push. |
+| **DEV_DOC** | Write developer documentation explaining how the code works. Create/update pages in `wiki/` covering: component architecture, data flow, hook contracts, key design patterns. Skip only if no new code was merged. |
+| **DOC_CHECK** | Review merged changes for wiki-impact: new concepts, changed terminology, architectural decisions. Update `wiki/` pages or `dev/adr/` if needed. Skip if no domain-model changes. |
+| **REPORT** | Tell the user: what was done, files changed, test results, wiki updates, dev doc updates. |
 | **BLOCKED** | Report exactly what's needed to the user. |
 
 ## Planning Rules
@@ -40,25 +41,18 @@ SPAWN → PLAN → DISPATCH → COLLECT → TEST → QA_REVIEW → COMMIT → RE
 4. Group tasks that touch DIFFERENT files into the same batch
 5. Max 3 concurrent subagents
 
-### Known file conflict map
+### File conflict discovery
 
-- `src/components/AddTaskInput.jsx` — T-0001 (creates), T-0014 (modifies)
-- `src/hooks/useTodos.js` — T-0004, T-0005, T-0007, T-0009 (all modify — bottleneck!)
-- `src/components/TaskItem.jsx` — T-0007, T-0009, T-0014 (all modify)
-- `src/App.jsx` — T-0002, T-0011, T-0012, T-0014, T-0015 (all modify)
-- `src/components/FilterBar.jsx` — T-0011 (creates), T-0015 (modifies)
+Before dispatching, scan the tasks to identify which files each task modifies.
+Build a conflict map dynamically:
 
-### Recommended batches
+```
+File A → [T-0001, T-0003]  # these cannot run together
+File B → [T-0002]          # solo — will conflict with future tasks
+File C → [T-0004, T-0005]  # bottleneck — serialize these
+```
 
-| Batch | Tasks | Why safe |
-|-------|-------|----------|
-| 1 | T-0001 (frontend) ‖ T-0004+T-0005 merged (backend) | Different files |
-| 2 | T-0002 (frontend, modifies App.jsx) | Solo — App.jsx conflict with future tasks |
-| 3 | T-0011 (frontend, modifies App.jsx) | Solo — App.jsx same reason |
-| 4 | T-0007+T-0009 merged (backend, useTodos+TaskItem) ‖ T-0014 (frontend, App.jsx+components) | Different primary files |
-| 5 | T-0012 (frontend, App.jsx) | Solo — App.jsx |
-| 6 | T-0015 (frontend, App.jsx+FilterBar) | Solo — App.jsx |
-| 7 | T-0003, T-0006, T-0008, T-0010, T-0013 (all tests) | Separate test files — run 3 at a time |
+Group by non-conflicting files into batches of max 3.
 
 ## Model Architecture
 
@@ -66,9 +60,9 @@ The agent team uses a 2-tier model strategy via Hermes profiles:
 
 | Role | Profile | Model | Why |
 |------|---------|-------|-----|
-| Team Lead (you) | `agent-lead` | deepseek-v4-pro | Strong reasoning for planning, dependency analysis, gate decisions |
-| Frontend/Backend | `agent-coder` | deepseek-v4-flash | Fast implementation, TDD loops don't need top-tier reasoning |
-| QA | `agent-qa` | deepseek-v4-flash | Fast verification, acceptance criteria are straightforward checks |
+| Team Lead (you) | `agent-lead` | <reasoning-model> | Strong reasoning for planning, dependency analysis, gate decisions |
+| Frontend/Backend | `agent-coder` | <fast-model> | Fast implementation, TDD loops don't need top-tier reasoning |
+| QA | `agent-qa` | <fast-model> | Fast verification, acceptance criteria are straightforward |
 
 ### How to use
 
@@ -102,40 +96,135 @@ hermes profile use agent-qa
 `delegate_task` subagents inherit the parent session's model. Per-subagent model
 selection is not yet available. The workaround: switch profiles between dispatch
 phases. For simple stories where the overhead isn't worth it, run everything
-under `agent-lead` — it's a strong enough model for all phases.
+under `agent-lead`.
+
+## Subagent Context Template
 
 Every subagent context MUST include:
 
 ```
-PROJECT: React Todo App — pure client-side, React + Tailwind + localStorage
-         Key: todos-v1. ID: crypto.randomUUID(). Tests: vitest + RTL.
-         Project root: /Users/wi9/project/llm-wiki-codebase-starter
+PROJECT: <project-name> — <brief description>
+         Project root: <absolute-path>
+         Test command: <e.g. pnpm exec vitest run>
+         Storage: <e.g. localStorage key, database, file-based>
 
 ROLE: frontend | backend | qa
 
 TASK: (full task file content from dev/tasks/T-NNNN-*.md)
 
 RULES: TDD (test → implement → verify), follow CLAUDE.md/AGENTS.md,
-       never edit outside task scope, run npx vitest run to verify
+       never edit outside task scope, run test command to verify
 
 OUTPUT: Files changed, test results, issues, status (DONE|NEEDS_HELP)
 ```
 
-### Role assignment
-
-| Role | Tasks | Territory |
-|------|-------|-----------|
-| `frontend` | T-0001, T-0002, T-0011, T-0012, T-0014, T-0015, T-0003, T-0008, T-0010, T-0013 | `src/components/`, `src/App.jsx`, component tests |
-| `backend` | T-0004, T-0005, T-0007, T-0009, T-0006 | `src/hooks/useTodos.js`, hook tests |
-
 ## Quality Gates (HARD)
 
-- TEST gate: `./run_tests.sh --full` must exit 0. NO exceptions.
+- TEST gate: project test suite must exit 0. NO exceptions.
 - QA_REVIEW gate: QA subagent must return `OVERALL: PASS`.
-- COMMIT gate: Only commit after both gates pass. Format: `feat(US-NNNN): <title>`
+- DEV_DOC gate: Write developer docs for all new/modified production code before DOC_CHECK. Skip only if no production code changed.
+- DOC_CHECK gate: Review wiki impact before REPORT. Skip only if no domain-model changes.
+- COMMIT gate: Only commit after both TEST and QA_REVIEW pass. Format: `feat(US-NNNN): <title>`
+
+## DEV_DOC Gate — Developer Documentation on Merge
+
+After COMMIT and before DOC_CHECK, write developer documentation explaining how the merged code works.
+
+### What to document
+
+For each PR merge, create or update pages in `wiki/` covering:
+
+1. **Component architecture** — component tree, props contracts, rendering logic
+2. **Data flow** — state shape, how data moves through hooks/components
+3. **Hook contracts** — input parameters, return values, side effects, internal state
+4. **Key design patterns** — patterns used, why chosen
+
+### Diagrams (required when applicable)
+
+| Scenario | Skill to load | Output |
+|----------|--------------|--------|
+| Component tree, data flow, sequence, state machine | `excalidraw` | `.excalidraw` JSON — save to `wiki/diagrams/` |
+| System architecture, service topology, deployment layout | `architecture-diagram` | `.html` — save to `wiki/diagrams/` |
+
+### When to SKIP
+
+- Config-only changes (package.json, configs, .gitignore)
+- Bug fixes that don't change component structure or data flow
+- QA test files only (no production code changed)
+- Tooling changes
+
+### Page naming and structure
+
+- Filename: `wiki/ComponentName.md` or `wiki/FeatureName.md` (Title Case)
+- Frontmatter: `title`, `type: dev-doc`, `tags`, `sources` (link to story/task), `created`, `updated`
+- Must have at least 1 [[wikilink]] to another wiki page
+- Diagram references go in a "## Diagrams" section
+
+## DOC_CHECK Gate — Wiki/Docs Update on Merge
+
+After COMMIT and before REPORT, review the merged changes for wiki impact.
+
+### Decision tree
+
+```
+Did this change introduce a NEW domain concept or terminology?
+  ├─ YES → Create/update wiki/concepts/Concept.md
+  └─ NO  → Continue
+
+Did this change ALTER the MEANING of an existing concept?
+  ├─ YES → Update the concept page, add nuance under "Notes"
+  └─ NO  → Continue
+
+Did this change involve an ARCHITECTURAL DECISION with trade-offs?
+  ├─ YES → Is it hard to reverse + surprising without context + a real trade-off?
+  │         ├─ YES → Create dev/adr/ADR-NNNN-slug.md
+  │         └─ NO  → Skip ADR
+  └─ NO  → Skip DOC_CHECK entirely
+```
+
+### When to SKIP
+
+- Bug fixes, refactoring, perf improvements
+- Adding a feature that fits cleanly into existing concepts
+- Tooling/config changes
+- Simple UI polish
+
+### Division of responsibility
+
+| Zone | Owns | Example |
+|------|------|---------|
+| `wiki/` | **Why** — rationale, alternatives, constraints | "We picked X over Y because..." |
+| Code | **What** — contracts, types, inline logic | `storage.getItem('key')` |
+
+## COLLECT Verification (mandatory)
+
+After subagents return, verify their claims before proceeding:
+
+```bash
+# ALWAYS verify git status — never trust subagent self-reports for side effects.
+git status --porcelain
+
+# Verify files claimed as "created" actually exist:
+ls -la path/to/claimed/file
+```
+
+If `git status` shows uncommitted changes the subagent claimed to commit:
+- The COMMIT gate will catch and fix it — just note it for the report
 
 ## When Blocked
 
 - Subagent fails → read error, re-dispatch with more context
 - 3+ failed attempts → stop and ask user
 - Never silently work around a subagent failure
+
+## Run Tests Script
+
+The project MUST have a `run_tests.sh` at root. Minimum interface:
+
+```bash
+./run_tests.sh --fast   # quick unit tests only
+./run_tests.sh --full   # full test suite (unit + integration)
+./run_tests.sh --e2e    # E2E tests (if applicable)
+```
+
+If the project doesn't have this yet, create it before the first dispatch.
