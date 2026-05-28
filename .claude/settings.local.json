@@ -3,7 +3,8 @@
     "allow": [
       "Bash(defuddle parse *)",
       "Skill(adr-writing)",
-      "Skill(obsidian-markdown)"
+      "Skill(obsidian-markdown)",
+      "Bash(npx vitest *)"
     ]
   }
 }

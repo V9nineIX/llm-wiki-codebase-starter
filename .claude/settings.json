@@ -1,4 +1,8 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "teammateMode": "tmux",
   "permissions": {
     "allow": [
       "Bash(ln -sf ../../.claude/skills/__TRACKED_VAR__/SKILL.md __TRACKED_VAR__.mdc)",
