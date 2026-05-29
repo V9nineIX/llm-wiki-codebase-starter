@@ -5,8 +5,9 @@ tags: [llm, knowledge-management, wiki, compounding, rag-alternative]
 sources:
   - "[[raw/clippings/2026-05-14-llm-wiki]]"
   - "[[raw/clippings/2026-05-19-personal-harness-llm-wiki-obsidian]]"
+  - "[[raw/clippings/2026-05-29-collaborating-with-agent-teams-in-claude-code]]"
 created: 2026-05-14
-updated: 2026-05-19
+updated: 2026-05-29
 ---
 
 An architecture for building persistent, compounding personal knowledge bases where an LLM agent incrementally maintains a structured wiki between the user and immutable raw sources.
@@ -58,7 +59,9 @@ Practical mapping for engineering workflows:
 
 **Scale ceiling**: index-file + summary navigation works up to roughly 100 sources / 400k words without vector infrastructure. Beyond that, a [[Retrieval-Augmented Generation|RAG]] layer for broad retrieval, with the wiki handling project-specific context, is more realistic.
 
-**Multi-agent write coordination**: designate one compilation agent with wiki write access; task agents read-only. Prevents conflicting edits while sharing a consistent knowledge view. ([[Verdent]] runs this pattern in isolated git worktrees.)
+**Multi-agent write coordination**: designate one compilation agent with wiki write access; task agents read-only. Prevents conflicting edits while sharing a consistent knowledge view. ([[Verdent]] runs this pattern in isolated [[Git Worktrees|git worktrees]].) The same single-writer discipline is the antidote to a failure mode seen with [[Agent Teams]]: several teammates editing a monolithic codebase across worktrees produce many merge conflicts — write contention on code is the same hazard the wiki avoids by funnelling edits through one writer.
+
+**Docs as the durable *why***: a complementary practice from the agent-teams workflow is updating `SPECIFICATIONS.md` (design decisions) and `README.md` (implementation details) after every feature, before committing — the same *why* vs. *what* split this pattern draws, kept inside the repo. See [[Spec-Driven Development]].
 
 ## Physical implementation: Zone Separation
 

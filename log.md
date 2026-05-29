@@ -80,3 +80,26 @@ Updated [[wiki/index|wiki/index]] with new "Code" section.
 - Todo state location: component state vs. context vs. [[localStorage]]?
 - Test strategy: single smoke test vs. per-component coverage?
 - Upgrade `web-vitals` (v2 → v3+) to swap FID → INP?
+
+## [2026-05-29] ingest | Collaborating with Agent Teams in Claude Code (heeki)
+
+**Source:** [[raw/clippings/2026-05-29-collaborating-with-agent-teams-in-claude-code]] — [[heeki]] Medium field report on the experimental Claude Code agent-teams feature.
+
+**Concepts created (4):**
+- [[Agent Teams]] — team lead + named teammates, shared task list, direct comms; vs. subagents; sharp edges; token cost; specification as the real bottleneck.
+- [[Git Worktrees]] — parallel branches mounted to directories; `claude --worktree`; rebase-onto-main for linear history.
+- [[tmux]] — sessions/windows/panes orchestration substrate for concurrent agent sessions.
+- [[Spec-Driven Development]] — issue-as-spec, human-in-the-loop, PM/SWE/UX role blurring, supporting practices.
+
+**Entity created (1):** [[heeki]].
+
+**Updated:**
+- [[Context Reset]] — added "Multiplied across context windows" (each teammate/subagent its own window; cost paid N times) + source + Related link.
+- [[LLM Wiki Pattern]] — linked multi-agent write coordination to [[Agent Teams]]/[[Git Worktrees]]; added docs-as-durable-why note → [[Spec-Driven Development]] + source.
+- [[wiki/index|wiki/index]] — added 4 concepts, 1 entity, 1 source.
+
+**Decision:** Per ingest plan, covered the agent-teams vs. subagents contrast *inside* [[Agent Teams]] rather than a separate Subagents page, and deferred a dedicated Claude Code hub page. `[[Claude Code]]` is now a frequently-linked missing page — a strong candidate for the next ingest or a lint pass to promote.
+
+**Open questions surfaced:**
+- Promote [[Claude Code]] to its own hub page (linked from 4+ pages and prior sources)?
+- Ingest heeki's prior post on spec-driven development to deepen [[Spec-Driven Development]]?
