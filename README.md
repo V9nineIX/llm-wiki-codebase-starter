@@ -21,7 +21,11 @@ and an agent team for building projects.
 
 ### Agent Team
 
-A multi-agent development team for the React Todo app (see `dev/prd/PRD-0001-react-todo.md`):
+Two multi-agent execution paths. Pick one per task; **never run both** (they share the working tree and `./run_tests.sh`).
+
+#### Subagent System — `orchestrator-workflow` skill (default)
+
+Single Claude session, ephemeral subagents, file-based dispatch. Cheap (~1x tokens), one clean commit history, easy to resume.
 
 | Role | Skill | Territory |
 |------|-------|-----------|
@@ -30,18 +34,53 @@ A multi-agent development team for the React Todo app (see `dev/prd/PRD-0001-rea
 | Backend | `subagent-backend` | `src/hooks/useTodos.js`, state |
 | QA | `subagent-qa` | Acceptance verification, edge cases |
 
-Quality gates: `./run_tests.sh --full` must pass before any commit.
+Coordination via `dispatch/`, `results/`, `TODO.md`, `STATUS.md`, `PROGRESS.md`. Full architecture in `dev/plans/agent-team-setup.md`.
 
-Full architecture: `dev/plans/agent-team-setup.md`
+#### Agent Team System — `/agent-team` command (experimental, multi-pane)
+
+Multiple concurrent Claude sessions in tmux panes, each with its own context window. Real parallelism, ~4x token cost, requires iTerm2 + tmux.
+
+| Role | Agent definition | Pane |
+|------|------------------|------|
+| Manager (lead) | `.claude/agents/manager.md` | Where you type commands |
+| Frontend | `.claude/agents/frontend.md` | React components |
+| Backend | `.claude/agents/backend.md` | Server / state layer |
+| QA | `.claude/agents/qa.md` | Vitest + Playwright |
+| UX/UI | `.claude/agents/ux-ui.md` | Design specs |
+
+Agent files are **generic templates**; project-specific conventions live in Subagent System's `SKILL.md` files (single source of truth — each spawn prompt points teammates there).
+Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
+
+#### How to choose
+
+Default to **Subagent System**. Switch to **Agent Team System** only when you genuinely need concurrent teammates in their own context windows.
+
+| Scenario | Pick | Why |
+|---|---|---|
+| Sequential task list (e.g. `dev/tasks/T-NNNN`) | **Subagent** | One commit history, dispatch list works fine |
+| Single-role work (just tests, just a hook) | **Subagent** | No parallelism gain |
+| Fix a failing test, small bug | **Subagent** | Cheaper, simpler |
+| Refactor across many independent files | **Agent Team** | Real parallel edits win |
+| Interactive design — talking with `ux-ui` + `frontend` live | **Agent Team** | Multi-role conversation |
+| Investigating a bug with competing hypotheses | **Agent Team** | Per the docs' debate pattern |
+
+**5-second test:** _Can I write this as a dispatch list right now?_ → **Subagent**. _Need to chat with agents to figure it out?_ → **Agent Team**.
+
+Quality gates (both): `./run_tests.sh --full` passes + QA review approves before any commit.
 
 ## Quick start
 
 ```bash
 # Wiki ingestion
-/ wiki-ingest <url>
+/wiki-ingest <url>
 
-# Build with agent team
+# Build with Subagent System (default)
 Load orchestrator-workflow skill, then: "build US-0001-task-management"
+
+# Build with Agent Team System (concurrent, tmux)
+# 1. Quit Claude. 2. From iTerm2: `tmux -CC new -s wiki && claude`
+# 3. Inside Claude:
+/agent-team <task description or @dev/tasks/T-NNNN>
 
 # Run tests
 ./run_tests.sh --fast   # unit tests only

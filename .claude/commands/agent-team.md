@@ -1,7 +1,7 @@
 ---
 description: Launch the 4-agent dev team (manager + frontend + backend + qa) in tmux split-pane mode
 argument-hint: [optional: task description for the team to start on]
-allowed-tools: Bash(tmux:*), Bash(claude:*), Bash(env), Bash(echo:*), Read, TeamCreate, Agent
+allowed-tools: Bash(tmux:*), Bash(claude:*), Bash(env), Bash(echo:*), Bash(ls:*), Bash(grep:*), Read, TeamCreate, Agent
 ---
 
 I'll launch the agent team for this React Todo project.
@@ -25,6 +25,17 @@ Run these checks and report any failures:
 3. **Subagent definitions present?**
    Confirm these exist: `.claude/agents/frontend.md`, `.claude/agents/backend.md`, `.claude/agents/qa.md`. If any missing, STOP and report.
 
+4. **Subagent System not already running?**
+   Probe shared state used by the `orchestrator-workflow` skill:
+   ```bash
+   grep -c '^- \[ \]' TODO.md 2>/dev/null
+   ls dispatch/*.md 2>/dev/null
+   grep -A 5 'Active Subagents' STATUS.md 2>/dev/null
+   ```
+   If `TODO.md` has any unchecked `- [ ]` items, OR `dispatch/` contains any `.md` files, OR `STATUS.md` "Active Subagents" section is non-empty → warn the user:
+   > "Subagent System (orchestrator-workflow) appears active — running Agent Team System on top will corrupt shared state (`./run_tests.sh`, working tree). Quit Subagent System first, or confirm explicitly to proceed."
+   Then wait for explicit confirmation before continuing.
+
 ## Step 2 — Create the team
 
 Use `TeamCreate`:
@@ -34,22 +45,22 @@ Use `TeamCreate`:
 
 ## Step 3 — Spawn 3 teammates
 
-Spawn each via the `Agent` tool with `team_name: "wiki-dev"` and the listed `subagent_type`. Each agent's body in `.claude/agents/<name>.md` is auto-appended to its system prompt — do NOT re-paste it. Keep the spawn prompt to task-specific context only.
+Spawn each via the `Agent` tool with `team_name: "wiki-dev"` and the listed `subagent_type`. Each agent's body in `.claude/agents/<name>.md` is auto-appended to its system prompt — do NOT re-paste it. The agent files are **generic templates**; project-specific conventions live in the `.claude/skills/subagent-<role>/SKILL.md` files. Each spawn prompt tells the teammate where to find them.
 
 **frontend teammate:**
 - `name`: `frontend`
 - `subagent_type`: `frontend`
-- `prompt`: "You are the frontend teammate on team `wiki-dev`. This is a Vite + React + Tailwind project (NOT Next.js — ignore Next.js references in your agent definition). Watch `dispatch/frontend.md` for briefs and write results to `results/frontend-<task-id>.md`. Coordinate with `backend` via SendMessage when you need a hook or state contract. Wait for tasks from the manager — don't start work unprompted."
+- `prompt`: "You are the frontend teammate on team `wiki-dev`. On startup, read `CLAUDE.md` and `.claude/skills/subagent-frontend/SKILL.md` — that is your project-specific playbook (stack, file layout, conventions). Watch SendMessage and TaskUpdate for assignments. Coordinate with `backend` when you need a hook contract. Don't start work unprompted."
 
 **backend teammate:**
 - `name`: `backend`
 - `subagent_type`: `backend`
-- `prompt`: "You are the backend teammate on team `wiki-dev`. This project has NO server — 'backend' here means state/hook layer (`src/hooks/useTodos.js`, localStorage persistence). Ignore Prisma/API-route references in your agent definition. Write hook contracts to `wiki/api/` BEFORE implementing so frontend can work in parallel. Wait for tasks from the manager."
+- `prompt`: "You are the backend teammate on team `wiki-dev`. On startup, read `CLAUDE.md` and `.claude/skills/subagent-backend/SKILL.md` — that is your project-specific playbook. Publish the contract for any hook/endpoint you build BEFORE implementing, so `frontend` can parallel-work against it. Watch SendMessage and TaskUpdate for assignments. Don't start work unprompted."
 
 **qa teammate:**
 - `name`: `qa`
 - `subagent_type`: `qa`
-- `prompt`: "You are the QA teammate on team `wiki-dev`. Use Vitest + React Testing Library (RTL). Run `./run_tests.sh --full` to validate. Verify acceptance criteria from the task brief and check for regressions. Wait until frontend AND backend report task complete before testing."
+- `prompt`: "You are the QA teammate on team `wiki-dev`. On startup, read `CLAUDE.md` and `.claude/skills/subagent-qa/SKILL.md` — that is your project-specific playbook (test runner, gate command, acceptance-criteria format). Wait until both `frontend` AND `backend` report DONE on a task before you start. Don't start work unprompted."
 
 ## Step 4 — Brief the team
 
@@ -74,6 +85,7 @@ Controls:
   • Shutdown: "clean up the team" when done
 
 Working tree is SHARED — keep frontend/backend on different files.
+Working tree + ./run_tests.sh are SHARED with Subagent System (orchestrator). Don't run both.
 Token cost is ~4x a single session. Stay focused.
 ```
 

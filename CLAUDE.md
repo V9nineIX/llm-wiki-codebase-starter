@@ -95,10 +95,34 @@ Skills loaded in `.claude/skills/`:
 - `story-to-tasks` — `/story-to-tasks` break User Story into Tasks → dev/tasks/
 
 ### Agent team (multi-agent development)
-- `orchestrator-workflow` — Team Lead: SPAWN→PLAN→DISPATCH→COLLECT→TEST→QA_REVIEW→COMMIT→REPORT
-- `subagent-frontend` — Component/UI developer (components, App.jsx, component tests)
-- `subagent-backend` — State/hook developer (useTodos.js, hook tests)
-- `subagent-qa` — QA engineer (acceptance verification, edge case regression)
+
+This repo supports TWO multi-agent execution paths. Pick one per task; never run both.
+
+**Subagent System — orchestrator-workflow skill (DEFAULT).** Single session, ephemeral
+subagents spawned via `delegate_task`. Coordination through `dispatch/`, `results/`,
+`TODO.md`, `STATUS.md`, `PROGRESS.md`. Subagent context lives in
+`.claude/skills/subagent-{frontend,backend,qa}/SKILL.md`.
+- `orchestrator-workflow` — Team Lead state machine: SPAWN→PLAN→DISPATCH→COLLECT→TEST→QA_REVIEW→COMMIT→REPORT
+- `subagent-frontend` — Components, App.jsx, component tests
+- `subagent-backend` — useTodos.js, hook tests
+- `subagent-qa` — Acceptance verification
+
+**Agent Team System — `/agent-team` command (interactive multi-pane).** Multiple concurrent
+Claude sessions in tmux panes via the experimental TeamCreate/Agent/SendMessage tools.
+Subagent definitions live in `.claude/agents/{frontend,backend,qa,manager,ux-ui}.md`
+as **generic templates** (Node+Nest.js backend, React frontend, Vitest+Playwright QA).
+Project-specific conventions live in the Subagent System SKILL.md files; each spawn prompt
+points the teammate at them on startup (single source of truth).
+Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
+
+**Decision rule (10-second guide).** Pick Subagent System by default. Use it for any story
+with tasks, a dependency graph, sequential batches, or where you want one commit
+history with QA gating. Switch to Agent Team System only when you genuinely need teammates
+operating concurrently in their own context windows — interactive design sessions
+where the manager bounces ideas off frontend/backend in real time, or large refactors
+where the manager needs its context clean while teammates churn. Rule of thumb: if
+you can write it as a dispatch list, use B; if you'd want to chat with the agents,
+use A. NEVER run both at once — they share the working tree and `./run_tests.sh`.
 
 ### Workflow order
 ```
@@ -107,10 +131,10 @@ Skills loaded in `.claude/skills/`:
                                                      → /grill-with-docs → /story-to-tasks → build
 ```
 
-The `build` phase uses the agent team orchestrator: load `orchestrator-workflow`
-skill, then dispatch tasks to subagents via `delegate_task`. Quality gates:
+The `build` phase uses one of the two systems above. Quality gates (both systems):
 `./run_tests.sh --full` (all tests pass) + QA review (all acceptance criteria
-verified) before any commit. See `dev/plans/agent-team-setup.md` for details.
+verified) before any commit. See `dev/plans/agent-team-setup.md` for Subagent System
+details and `.claude/commands/agent-team.md` for the Agent Team System launcher.
 
 Before creating `.canvas` or `.base` files, consult the corresponding skill.
 Before fetching a URL, consult `defuddle`.
