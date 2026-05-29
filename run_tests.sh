@@ -21,8 +21,12 @@ case "$MODE" in
     echo "=== Running Playwright E2E tests ==="
     pnpm exec playwright test --reporter=list
     ;;
+  --storybook)
+    echo "=== Running Storybook tests ==="
+    pnpm exec vitest --project=storybook
+    ;;
   *)
-    echo "Usage: ./run_tests.sh [--fast|--full|--e2e]"
+    echo "Usage: ./run_tests.sh [--fast|--full|--e2e|--storybook]"
     exit 1
     ;;
 esac

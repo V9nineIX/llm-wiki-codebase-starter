@@ -17,7 +17,7 @@ React Todo App — pure client-side SPA. No backend, no API, no database.
 - Persistence: localStorage key `todos-v1`
 - IDs: `crypto.randomUUID()`
 - Tests: Vitest + React Testing Library (RTL)
-- Root: `/Users/wi9/project/llm-wiki-codebase-starter`
+- Root: `{project_root}` — resolve to the project root dynamically
 
 ## Your Workflow
 
