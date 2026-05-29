@@ -22,8 +22,8 @@ export function FilterBar({ filter, onChange }: Props) {
           onClick={() => onChange(value)}
           className={
             filter === value
-              ? 'flex-1 py-1.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md transition-all duration-200'
-              : 'flex-1 py-1.5 text-sm rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-all duration-200'
+              ? 'flex-1 py-2.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md transition-all duration-200'
+              : 'flex-1 py-2.5 text-sm rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-all duration-200'
           }
         >
           {label}

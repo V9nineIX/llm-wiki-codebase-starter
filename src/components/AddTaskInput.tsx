@@ -26,11 +26,11 @@ export function AddTaskInput({ onAddTask }: Props) {
         onChange={(e) => setValue(e.target.value)}
         placeholder="Add a task…"
         aria-label="New task"
-        className="flex-1 bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-4 py-2 text-slate-700 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+        className="flex-1 bg-slate-50 focus:bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
       />
       <button
         type="submit"
-        className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold px-4 py-2 rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
+        className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
       >
         Add
       </button>

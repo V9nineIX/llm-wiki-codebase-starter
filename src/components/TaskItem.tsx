@@ -8,13 +8,13 @@ interface Props {
 
 export function TaskItem({ task, onToggle, onDelete }: Props) {
   return (
-    <li className="group flex items-center gap-3 px-2 py-2 hover:bg-slate-50 rounded-xl">
+    <li className="group flex items-center gap-3 px-2 py-2.5 hover:bg-slate-50 rounded-xl">
       <input
         type="checkbox"
         id={`task-${task.id}`}
         checked={task.completed}
         onChange={() => onToggle(task.id)}
-        className="w-4 h-4 accent-blue-500 cursor-pointer flex-shrink-0"
+        className="w-5 h-5 accent-blue-500 cursor-pointer flex-shrink-0"
       />
       <label
         htmlFor={`task-${task.id}`}

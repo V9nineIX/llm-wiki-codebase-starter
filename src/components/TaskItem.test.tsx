@@ -45,6 +45,18 @@ describe('TaskItem', () => {
     expect(label.className).not.toMatch(/line-through/)
   })
 
+  it('applies muted colour class to completed task text (T-0015)', () => {
+    render(<TaskItem task={completedTask} onToggle={vi.fn()} onDelete={vi.fn()} />)
+    const label = screen.getByText('Buy eggs')
+    expect(label.className).toMatch(/text-slate-300/)
+  })
+
+  it('does not apply muted colour to incomplete task text (T-0015)', () => {
+    render(<TaskItem task={incompleteTask} onToggle={vi.fn()} onDelete={vi.fn()} />)
+    const label = screen.getByText('Buy milk')
+    expect(label.className).toMatch(/text-slate-700/)
+  })
+
   it('renders a delete button', () => {
     render(<TaskItem task={incompleteTask} onToggle={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument()

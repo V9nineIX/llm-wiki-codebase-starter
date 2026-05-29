@@ -41,4 +41,12 @@ describe('FilterBar', () => {
     await user.click(screen.getByRole('button', { name: 'Completed' }))
     expect(onChange).toHaveBeenCalledWith('completed')
   })
+
+  it('active button has gradient background class (T-0015)', () => {
+    render(<FilterBar filter="completed" onChange={vi.fn()} />)
+    const activeBtn = screen.getByRole('button', { name: 'Completed' })
+    const inactiveBtn = screen.getByRole('button', { name: 'All' })
+    expect(activeBtn.className).toMatch(/from-blue-500/)
+    expect(inactiveBtn.className).not.toMatch(/from-blue-500/)
+  })
 })

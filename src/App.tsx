@@ -17,7 +17,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-blue-50 flex items-start justify-center pt-16 px-4">
-      <div className="bg-white rounded-2xl shadow-xl shadow-blue-100/50 p-6 sm:p-8 max-w-md mx-auto w-full">
+      <div className="bg-white rounded-2xl shadow-xl shadow-blue-100/50 p-6 sm:p-8 max-w-xl mx-auto w-full">
         <header className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
             <svg
@@ -45,7 +45,8 @@ export default function App() {
 
         <FilterBar filter={filter} onChange={setFilter} />
 
-        <ul className="mt-4 space-y-0.5" aria-label="Task list">
+        {/* min-h prevents layout shift when the filtered list is empty */}
+        <ul className="mt-4 space-y-0.5 min-h-[4rem]" aria-label="Task list">
           {filteredTasks.map((task) => (
             <TaskItem
               key={task.id}
@@ -54,13 +55,12 @@ export default function App() {
               onDelete={deleteTask}
             />
           ))}
+          {filteredTasks.length === 0 && (
+            <li className="text-center text-slate-400 text-sm py-4" aria-live="polite">
+              {filter === 'all' ? 'No tasks yet — add one above!' : `No ${filter} tasks.`}
+            </li>
+          )}
         </ul>
-
-        {filteredTasks.length === 0 && (
-          <p className="text-center text-slate-400 text-sm mt-6 py-4">
-            {filter === 'all' ? 'No tasks yet — add one above!' : `No ${filter} tasks.`}
-          </p>
-        )}
       </div>
     </div>
   )
