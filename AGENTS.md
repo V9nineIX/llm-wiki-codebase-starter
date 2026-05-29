@@ -134,7 +134,7 @@ Before generating epics/stories/tasks, run `/grill-with-docs` on the source arti
 
 ### Agent team (multi-agent development)
 - `orchestrator-workflow` — Team Lead state machine: SPAWN→PLAN→DISPATCH→COLLECT→TEST→QA_REVIEW→COMMIT→REPORT
-- `subagent-frontend` — Component/UI developer (territory: `src/components/`, `src/App.jsx`, component tests)
+- `subagent-frontend` — Components, App.jsx, component tests + Storybook `.stories.tsx` creation
 - `subagent-backend` — State/hook developer (territory: `src/hooks/useTodos.js`, hook tests)
 - `subagent-qa` — Acceptance verification + edge case regression tester
 

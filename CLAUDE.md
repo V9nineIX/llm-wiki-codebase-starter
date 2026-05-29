@@ -103,7 +103,7 @@ subagents spawned via `delegate_task`. Coordination through `dispatch/`, `result
 `TODO.md`, `STATUS.md`, `PROGRESS.md`. Subagent context lives in
 `.claude/skills/subagent-{frontend,backend,qa}/SKILL.md`.
 - `orchestrator-workflow` — Team Lead state machine: SPAWN→PLAN→DISPATCH→COLLECT→TEST→QA_REVIEW→COMMIT→REPORT
-- `subagent-frontend` — Components, App.jsx, component tests
+- `subagent-frontend` — Components, App.jsx, component tests + Storybook `.stories.tsx` creation
 - `subagent-backend` — useTodos.js, hook tests
 - `subagent-qa` — Acceptance verification
 
